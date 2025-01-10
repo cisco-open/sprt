@@ -1,0 +1,45 @@
+.list li a.panel {
+    display: block;
+}
+
+.list li a.panel:hover {
+    text-decoration: none;
+}
+
+.cui .grid.grid--selectable > a:hover {
+    border: none !important;
+    cursor: pointer; 
+}
+
+.cui .grid.grid--selectable > a > .card {
+    -webkit-transition: all .2s ease-out;
+    -moz-transition: all .2s ease-out;
+    -o-transition: all .2s ease-out;
+    transition: all .2s ease-out;
+}
+
+.cui .grid.grid--selectable > a:hover > .card {
+    border: 1px solid var(--cui-theme-primary);
+    cursor: pointer; 
+}
+
+.card .icon-size-48 {
+    -webkit-transition: all .2s ease-out;
+    -moz-transition: all .2s ease-out;
+    -o-transition: all .2s ease-out;
+    transition: all .2s ease-out;
+}
+
+.card:hover .icon-size-48 {
+    color: var(--cui-theme-primary);
+}
+
+.cui .borderless-cards .card,
+.cui .borderless-cards a:hover .card {
+    border: none !important;
+}
+
+.cui .borderless-cards .card .card__body {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

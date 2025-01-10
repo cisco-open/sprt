@@ -1,0 +1,20 @@
+<div id="react-app" class="section sticky">
+    <div class="flex-center" style="flex: 1">
+        <div>
+            <div class="loading-spinner loading-spinner--indigo flex-center flex">
+                <div class="wrapper">
+                    <div class="wheel"></div>
+                </div>
+            </div>
+            <div class="base-margin-top text-center">Loading UI...</div>
+        </div>
+    </div>
+</div>
+
+[% global.modals = BLOCK %][% END %]
+
+[% global.javascripts = BLOCK %]
+<script>const CAN_GLOBALS = [% IF super_user -%]1[% ELSE -%]0[% END %];</script>
+
+<script src="/js/react-uis/dist/[% ui %].js?[% version %]"></script>
+[% END %]

@@ -1,0 +1,532 @@
+[% BLOCK nas_port %]
+  [% IF (port == 'Wireless-802.11' && !page_attributes.item('NAS-Port-Type')) ||
+        (page_attributes.item('NAS-Port-Type') == port) -%]
+      [% IF pr -%]
+         [% pr %]
+      [% ELSE -%]
+         checked
+      [% END %]
+  [% END %]
+[% END %]
+
+[% BLOCK other_nas %]
+  [% IF page_attributes.item('NAS-Port-Type') && 
+        (page_attributes.item('NAS-Port-Type') != 'Wireless-802.11' && page_attributes.item('NAS-Port-Type') != 'Ethernet') %]
+    [% IF !h %]checked[% END %]
+  [% ELSE %]
+    [% IF h %]style="display: none;"[% END %]
+  [% END %]
+[% END %]
+
+[% BLOCK gv %]
+  [% IF page_attributes.$n %]
+    value="[% page_attributes.$n %]"
+  [% ELSE %]
+    value="[% d %]"
+  [% END %]
+[% END %]
+
+[% FOREACH p IN ['nad', 'all-radius', 'coa-options', 'variable-ip', 'variable-mac', 'sessions-generation'];
+   IF !page_settings.$p.defined; SET page_settings.$p = 1; END;
+END %]
+
+[% USE JSON %]
+<form method="post" novalidate>
+  <input type="hidden" name="generate" value="1">
+  <input type="hidden" name="protocol" value="mab">
+
+  <div class="section">
+    <div class="row">
+      <div class="col-md-4 col-lg-3 col-xl-2 fixed-left-lg-up" style="z-index: 1;">
+        <div class="subheader base-margin-left hidden-sm-down">parameters</div>
+        <ul class="tabs tabs--vertical switchable" style="overflow: visible;">
+          <li id="reactProtoSelect" class="tab react-app"><a href="javascript:;" class="no-tab">Protocol</a></li>
+          <li class="tab active" data-order="1"><a href="javascript:;" data-target="general">General</a></li>
+          <li class="tab" data-order="1"><a href="javascript:;" data-target="variable-mac">MAC Addresses</a></li>
+          <li class="tab" data-order="1"><a href="javascript:;" data-target="variable-ip">IP Addresses</a></li>
+          <li class="tab" data-order="998"><a href="javascript:;" data-target="all-radius">RADIUS</a></li>
+          <li class="tab" data-order="999"><a href="javascript:;" data-target="scheduler">Scheduler</a></li>
+          [% IF debug %]
+          <li class="tab last-tab" data-order="9999"><a href="javascript:;" data-target="debug-options">Debug options</a></li>
+          [% END %]
+          <li class="tab last-tab" data-order="99999"></li>
+        </ul>
+      </div>
+      <div class="col-md-8 col-lg-9 col-xl-10 offset-xl-2 offset-lg-3">
+        <div class="tab-content">
+          <div class="tab-pane active animated fadeIn section no-padding" id="general">
+  <div class="section section--compressed non-removable">
+      <div class="row">
+        <div class="col" id="left-column">
+          [% IF nad %]
+            <h2 class="display-3 no-margin half-margin-bottom text-capitalize flex-fluid">Network Access Device</h2>
+            <div class="panel-body" id="nad-options-panel">
+              <div class="flex half-margin-bottom">
+                <div class="form-group half-margin-right flex-fill">
+                  <div class="form-group__text">
+                    <input type="text" id="nad-ip" name="nad-ip" readonly="readonly" value="[% nad.ip %]" data-family="[% nad.family || 'v4' %]">
+                    <label for="nad-ip">Source IP <span class="text-xsmall">(NAD IP address)</span></label>
+                  </div>
+                </div>
+                <div class="btn-group btn-group--large btn-group--square base-margin-top">
+                  <button type="button" class="btn btn--icon btn--link not-submit copy-attribute" title="Copy to clipboard" data-balloon="Copy to clipboard" data-balloon-pos="up">
+                    <span class="icon-clipboard" title="Copy to clipboard"></span>
+                  </button>
+                  [% IF nad.ips %]
+                  <div class="dropdown dropdown--left link" style="margin-left: 0px;" id="nad-ips-dd" data-balloon="Select source IP" data-balloon-pos="up">
+                    <button type="button" class="btn btn--icon btn--link btn--dropdown not-submit" title="Select source IP" id="nad-ips-dd-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span class="icon-chevron-down"></span>
+                    </button>
+                    <div class="dropdown__menu" aria-labelledby="dLabel">
+                      [% IF nad.ips.IPv4.size %]
+                        [% FOREACH ip IN nad.ips.IPv4 %]
+                          <li><a data-value="[% ip.addr %]" data-family="v4">[% ip.addr %]</a></li>
+                        [% END %]
+                      [% END %]
+                      [% IF nad.ips.IPv6.size %]
+                        [% IF nad.ips.IPv4.size %]<div class="dropdown__divider"></div>[% END %]
+                        [% FOREACH ip IN nad.ips.IPv6 %]
+                          <li><a data-value="[% ip.addr %]" data-family="v6">[% ip.addr %]</a></li>
+                        [% END %]
+                      [% END %]
+                    </div>
+                  </div>
+                  [% END %]
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="form-group__text select">
+                  <select id="NAS-Port-Type-selector" class="not-submit">
+                    <optgroup label="Often used">
+                      <option [% PROCESS nas_port port='Wireless-802.11' pr='selected' %] value="Wireless-802.11" selected>Wireless (802.11)</option>
+                      <option [% PROCESS nas_port port='Ethernet' pr='selected' %] value="Ethernet">Wired (Ethernet)</option>
+                    </optgroup>
+                    <optgroup label="Others">
+                      <option [% PROCESS nas_port port='Async' pr='selected' %] value="Async">Async</option>
+                      <option [% PROCESS nas_port port='Sync' pr='selected' %] value="Sync">Sync</option>
+                      <option [% PROCESS nas_port port='ISDN' pr='selected' %] value="ISDN">ISDN</option>
+                      <option [% PROCESS nas_port port='ISDN-V120' pr='selected' %] value="ISDN-V120">ISDN-V120</option>
+                      <option [% PROCESS nas_port port='ISDN-V110' pr='selected' %] value="ISDN-V110">ISDN-V110</option>
+                      <option [% PROCESS nas_port port='Virtual' pr='selected' %] value="Virtual">Virtual</option>
+                      <option [% PROCESS nas_port port='PIAFS' pr='selected' %] value="PIAFS">PIAFS</option>
+                      <option [% PROCESS nas_port port='HDLC-Clear-Channel' pr='selected' %] value="HDLC-Clear-Channel">HDLC-Clear-Channel</option>
+                      <option [% PROCESS nas_port port='X.25' pr='selected' %] value="X.25">X.25</option>
+                      <option [% PROCESS nas_port port='X.75' pr='selected' %] value="X.75">X.75</option>
+                      <option [% PROCESS nas_port port='G.3-Fax' pr='selected' %] value="G.3-Fax">G.3-Fax</option>
+                      <option [% PROCESS nas_port port='SDSL' pr='selected' %] value="SDSL">SDSL</option>
+                      <option [% PROCESS nas_port port='ADSL-CAP' pr='selected' %] value="ADSL-CAP">ADSL-CAP</option>
+                      <option [% PROCESS nas_port port='ADSL-DMT' pr='selected' %] value="ADSL-DMT">ADSL-DMT</option>
+                      <option [% PROCESS nas_port port='IDSL' pr='selected' %] value="IDSL">IDSL</option>
+                      <option [% PROCESS nas_port port='xDSL' pr='selected' %] value="xDSL">xDSL</option>
+                      <option [% PROCESS nas_port port='Cable' pr='selected' %] value="Cable">Cable</option>
+                      <option [% PROCESS nas_port port='Wireless-Other' pr='selected' %] value="Wireless-Other">Wireless-Other</option>
+                      <option [% PROCESS nas_port port='Token-Ring' pr='selected' %] value="Token-Ring">Token-Ring</option>
+                      <option [% PROCESS nas_port port='FDDI' pr='selected' %] value="FDDI">FDDI</option>
+                    </optgroup>
+                  </select>
+                  <label for="NAS-Port-Type-selector">Connections type</label>
+                </div>
+              </div>
+              <div class="flex half-margin-top">
+                <div class="form-group flex-fill half-margin-right">
+                  <div class="form-group__text">
+                    <input type="number" id="framed-mtu" name="framed-mtu" min="120" max="65536" [% PROCESS gv n="framed-mtu" d="1300" %] class="required" 
+                    [% IF page_attributes.item('include-framed-mtu').defined && !page_attributes.item('include-framed-mtu') %]disabled[% END %]>
+                    <label for="framed-mtu">MTU <span class="text-xsmall">(Framed-MTU)</span></label>
+                  </div>
+                </div>
+                <div class="flex-center-vertical base-margin-top">
+                  <label class="switch switch--small">
+                    <input name="include-framed-mtu" id="framed-mtu-switch" type="checkbox" 
+                    [% IF !page_attributes.item('include-framed-mtu').defined || page_attributes.item('include-framed-mtu') %]checked[% END %]>
+                    <span class="switch__input"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group half-margin-top">
+                <div class="form-group__text">
+                  <input id="session-id" type="text" name="session-id" class="required" 
+                    [% IF page_attributes.item('session-id').defined %] value="[% page_attributes.item('session-id') %]"
+                    [% ELSIF nad.session_id %] value="[% nad.session_id %]"
+                    [% END %]
+                  >
+                  <label for="session-id">Session ID template</label>
+                </div>
+              </div>
+              <div class="row half-margin-top">
+                <div class="col">
+                  <div class="form-group">
+                    <div class="form-group__text">
+                      <input type="number" id="timeout" name="timeout" min="1" max="600" value="[% nad.timeout || '5' %]" class="required">
+                      <label for="timeout">Timeout <span class="text-xsmall">(seconds)</span></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group">
+                    <div class="form-group__text">
+                      <input type="number" id="retransmits" name="retransmits" min="0" max="100" value="[% nad.retransmits || '0' %]" class="required">
+                      <label for="retransmits">Retransmits</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <!-- </div> --> <!-- /NAD info -->
+          [% END %]
+
+          <!--<div class="panel panel--loose">-->
+          <div class="flex base-margin-top half-margin-bottom">
+            <h2 class="half-margin-right flex-center-vertical no-margin-bottom display-3 text-capitalize">Server</h2>
+            <div class="dropdown base-margin-left half-margin-top flex-center-vertical" id="server-load-dd">
+              <a href="javascript:;" class="btn--dropdown not-submit" type="button">
+                <span class="dropdown-title">Load</span>
+	            </a>
+              <div class="dropdown__menu" aria-labelledby="dLabel">
+              </div>
+            </div>
+          </div>
+            <div class="panel-body " id="server-data">
+              <div class="alert">
+                <div class="alert__icon icon-info-outline"></div>
+                <div class="alert__message">CoA and Guest are supported only for <a href="/servers/">saved servers</a> which have "Handle Dynamic Authorization" enabled.</div>
+              </div>
+              <div class="form-group half-margin-top">
+                <div class="form-group__text">
+                  <input id="server-ip" type="text" name="server-ip" class="required">
+                  <label for="server-ip">Server address</label>
+                </div>
+              </div>
+              <div class="row half-margin-top">
+                <div class="col">
+                  <div class="form-group">
+                    <div class="form-group__text">
+                      <input type="number" id="auth-port" name="auth-port" min="1" max="65536" value="1812" class="required">
+                      <label for="auth-port">Authentication port</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group">
+                    <div class="form-group__text">
+                      <input type="number" id="acct-port" name="acct-port" min="1" max="65536" value="1813" class="required">
+                      <label for="acct-port">Accounting port</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group half-margin-top">
+                <div class="form-group__text">
+                  <input id="shared-secret" type="text" name="shared-secret" class="required">
+                  <label for="shared-secret">Shared secret</label>
+                </div>
+              </div>
+              <label class="switch switch--small form-group--margin">
+                <input type="checkbox" name="save-server" id="save-server" value="1">
+                <span class="switch__input"></span>
+                <span class="switch__label">Save server if doesn't exist</span>
+              </label>
+            </div>
+          <!--c</div> --><!-- /server parameters -->
+        </div><!-- /col -->
+        <div class="col" id="right-column">
+           <!-- <div class="panel panel--loose"> -->
+            <h2 class="display-3 no-margin half-margin-bottom text-capitalize flex-fluid">Sessions Generation</h2>
+            <div class="panel-body " id="sessions-generation-panel">
+              <div class="form-group">
+                <div class="form-group__text">
+                  <input type="text" id="proc-name" name="proc-name" placeholder="">
+                  <label for="proc-name">Job name</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="form-group__text">
+                  <input type="number" id="count" name="count" min="1" max="[% settings.processes.max_sessions %]" [% PROCESS gv n="count" d="10" %] class="required">
+                  <label for="count">Amount of sessions <span class="text-xsmall">(up to [% settings.processes.max_sessions %])</span></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="form-group__text">
+                  <input type="text" id="latency" name="latency" class="validate" data-validate="range" [% PROCESS gv n="latency" d="0" %]>
+                  <label for="latency">Latency between sessions <span class="text-xsmall">(milliseconds)</span>
+                    <span
+                      data-balloon="Can be integer or range in format 'N1..N2'. If range is specified, random number will be used from the range." 
+                      data-balloon-length="large" data-balloon-pos="up">
+                      <span class="icon-question-circle" style="cursor: help;"></span>
+                    </span>
+                  </label>
+                </div>
+              </div> <!-- /latency -->
+              <label class="switch switch--small form-group--margin">
+                <input type="checkbox" name="async" id="async-switch" value="1"
+                  [% IF page_attributes.item('async').defined && page_attributes.item('async') %]checked[% END %]>
+                <span class="switch__input"></span>
+                <span class="switch__label">Multi-thread generation</span>
+              </label> <!-- /async -->
+              <div class="form-group--margin">
+                <label class="switch switch--small form-group--margin">
+                  <input type="checkbox" name="save-sessions" id="save-sessions" value="1"
+                    [% IF !page_attributes.item('save-sessions').defined || page_attributes.item('save-sessions') %]checked[% END %]>
+                  <span class="switch__input"></span>
+                  <span class="switch__label">Save sessions</span>
+                </label> <!-- /save -->
+                <div class="form-group" id="save-options">
+                  <div class="form-group__text">
+                    <input id="bulk-name" type="text" name="bulk-name" [% PROCESS gv n="bulk-name" d="" %]>
+                    <label for="bulk-name" style="white-space: nowrap;">Bulk name</label>
+                  </div>
+                </div> <!-- /save-options -->
+              </div>
+              <div class="form-group--margin">
+                <label class="switch switch--small form-group--margin">
+                  <input type="checkbox" 
+                    [% IF !page_attributes.item('send-acct-start').defined || page_attributes.item('send-acct-start') %]checked[% END %]
+                    name="send-acct-start" id="send-acct-start-switch">
+                  <span class="switch__input"></span>
+                  <span class="switch__label">Send Accounting-Start if authenticated successfully</span>
+                </label>
+                <div class="form-group"
+                  [% IF page_attributes.item('send-acct-start').defined && !page_attributes.item('send-acct-start') %]style="display: none;"[% END %]>
+                  <div class="form-group__text">
+                    <input type="text" id="accounting-latency" name="accounting-latency" class="validate" data-validate="range" [% PROCESS gv n="accounting-latency" d="0" %]>
+                    <label for="accounting-latency">
+                      Latency after succesfull authentication <span class="text-xsmall">(milliseconds)</span>
+                      <span
+                        data-balloon="Can be integer or range in format 'N1..N2'. If range is specified, random number will be used from the range." 
+                        data-balloon-length="large" data-balloon-pos="up">
+                        <span class="icon-question-circle" style="cursor: help;"></span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+                <label class="switch switch--small form-group--margin">
+                  <input type="checkbox" value="1" name="download-dacl"
+                    [% IF !page_attributes.item('download-dacl').defined || page_attributes.item('download-dacl') %]checked[% END %]>
+                  <span class="switch__input"></span>
+                  <span class="switch__label">Download DACLs</span>
+                </label>
+              </div><!-- /advanced -->
+            </div>
+        </div><!-- /col-6 -->
+      </div><!-- /row -->
+  </div><!-- section -->
+          </div>
+          <div class="tab-pane animated fadeIn section no-padding" id="variable-mac">
+  <div class="section section--compressed non-removable protocols-specific-after collectable" data-attribute="vars">
+            <h2 class="display-3 no-margin text-capitalize flex-fluid">MAC Addresses</h2>
+            <h5 class="base-margin-bottom subheading">How MAC address should be generated for each session. Variable name - $MAC$</h5>
+            <div class="panel-body">
+              
+            </div>
+  </div>
+          </div>
+          <div class="tab-pane animated fadeIn section no-padding" id="variable-ip">
+  <div class="section section--compressed non-removable protocols-specific-after collectable" data-attribute="vars">
+            <h2 class="display-3 no-margin text-capitalize flex-fluid">IP Addresses</h2>
+            <h5 class="base-margin-bottom subheading">How IP address should be generated for each session. Variable name - $IP$</h5>
+            <div class="panel-body">
+              
+            </div>
+  </div><!-- section -->
+
+          </div>
+          <div class="tab-pane animated fadeIn section no-padding" id="all-radius">
+
+  <div class="section section--compressed non-removable">
+    <h2 class="display-3 no-margin text-capitalize flex-fluid">Dictionaries</h2>
+    <h5 class="base-margin-bottom subheading">Select which RADIUS dictionaries will be loaded</h5>
+
+    <div class="dictionaries-container">
+    </div>
+
+    <h2 class="display-3 no-margin text-capitalize flex-fluid">Attributes</h2>
+    <h5 class="base-margin-bottom subheading">Compiled RADIUS attributes. You can add some specific attributes here</h5>
+    <div class="row">
+      <div class="col">
+        <div class="panel-body attributes-split">
+          <h5 style="margin-bottom: 10.5px;">Access-Request</h5>
+          <div class="radius-attributes-wrap" id="access-request-attributes">
+            <div class="form-group protocol-specific">
+              <div class="form-group__text">
+                <input type="text" value="Call-Check" class="radius-attribute" id="Service-Type-input" readonly>
+                <label for="Service-Type-input">Service-Type <span class="text-xsmall">(integer)</span></label>
+              </div>
+            </div>
+
+            <div class="form-group protocol-specific">
+              <div class="form-group__text">
+                <input type="text" value="Same as MAC address" class="radius-attribute" id="User-Name-input" readonly>
+                <label for="User-Name-input">User-Name <span class="text-xsmall">(string)</span></label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-group__text">
+                <input type="text" value="$SESSIONID$" class="radius-attribute" id="Acct-Session-Id-input" readonly>
+                  <label for="Acct-Session-Id-input">Acct-Session-Id <span class="text-xsmall">(string)</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-group__text">
+                <input type="text" value="$MAC$" data-include="1" class="radius-attribute" name="Calling-Station-Id" id="Calling-Station-Id-input" data-type="string">
+                <label for="Calling-Station-Id-input">Calling-Station-Id <span class="text-xsmall">(string)</span></label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-group__text">
+                <input type="text" id="called-st-id" name="Called-Station-Id" value="00-00-00-FF-FF-FF" class="radius-attribute" data-type="string">
+                <label for="called-st-id">Called-Station-Id <span class="text-xsmall">(string)</span></label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-group__text">
+                <input type="text" id="nas-ip" name="NAS-IP-Address" 
+                  placeholder="[% IF nad %][% nad.ip %][% ELSE %]10.48.26.61[% END %]" 
+                  value="[% IF nad %][% nad.ip %][% ELSE %]10.48.26.61[% END %]" 
+                  class="radius-attribute" data-type="string">
+                <label for="nas-ip">NAS-IP-Address <span class="text-xsmall">(ipaddr)</span></label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-group__text">
+                [% FILTER null;
+                  att_name = 'NAS-Port-Type';
+                  autocomplete = [];
+                  IF dictionary.values.$att_name;
+                    FOREACH value IN dictionary.values.$att_name;
+                      IF value.value.exists('name');
+                        autocomplete.push( value.value.name );
+                      END;
+                    END;
+                  ELSE;
+                    autocomplete = [ 'Wireless-802.11', 'Ethernet' ];
+                  END;
+                END;
+                -%]
+                <input type="text" name="NAS-Port-Type" id="nas-port" data-autocomplete='[% autocomplete.json %]' value="Wireless-802.11" class="autocomplete radius-attribute" data-type="integer">
+                <label for="nas-port">NAS-Port-Type <span class="text-xsmall">(integer)</span></label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-group__text">
+                <input type="text" id="Message-Authenticator-input" name="Message-Authenticator" value="Calculate" class="autocomplete radius-attribute" data-autocomplete='["Calculate"]' data-type="string">
+                <label for="Message-Authenticator-input">Message-Authenticator <span class="text-xsmall">(octets)</span></label>
+              </div>
+            </div>
+            
+            <div class="text-center base-margin-top"> 
+              <button class="btn btn--link add-attribute-btn" type="button">
+                Add attribute <span class="icon-add-outline qtr-margin-left half-margin-right" aria-hidden="true" title="Add"></span>
+              </button>
+            </div>
+          </div>
+        </div><!-- /Access-Request -->
+
+      </div><!-- col -->
+      <div class="col">
+        <div class="panel-body" id="acct-start-panel">
+          <h5 style="margin-bottom: 10.5px;">Accounting-Start</h5>
+          <div class="radius-attributes-wrap" id="accounting-start-attributes">
+            <div class="text-center base-margin-top"> 
+              <button class="btn btn--link add-attribute-btn" type="button">
+                Add attribute <span class="icon-add-outline qtr-margin-left half-margin-right" aria-hidden="true" title="Add"></span>
+              </button>
+            </div>
+          </div>
+        </div><!-- /Accounting-Start -->
+      </div> <!-- col -->
+    </div><!-- row -->
+  </div><!-- section -->
+
+            </div>
+
+  <div class="tab-pane animated fadeIn section no-padding react-app" id="scheduler">
+      <div class="section section--compressed non-removable" id="scheduler-react-app">
+        <div class="flex-center" style="flex: 1">
+          <div>
+              <div class="loading-spinner loading-spinner--indigo flex-center">
+                  <div class="wrapper">
+                      <div class="wheel"></div>
+                  </div>
+              </div>
+              <div class="base-margin-top text-center">Loading UI...</div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  [% IF debug %]
+  <div class="tab-pane animated fadeIn section no-padding" id="debug-options">
+      <div class="section section--compressed non-removable">
+        <h2 class="display-3 no-margin half-margin-bottom text-capitalize flex-fluid">Debug</h2>
+        <div class="panel-body">
+          <label class="switch switch--small">
+            <input type="checkbox" value="1" name="verbose">
+            <span class="switch__input"></span>
+            <span class="switch__label">Enable debugs</span>
+          </label>
+        </div>
+      </div>
+  </div>
+  [% END %]
+  </div><!-- tab-content -->
+  </div><!-- col -->
+  </div><!-- row -->
+</div><!-- section -->
+
+  <div class="section section--compressed non-removable base-margin-bottom">
+      <div class="text-center">
+        <button type="submit" class="btn btn--primary" name="submit" value="1">Start</button>
+      </div>
+  </div><!-- section -->
+</form>
+
+[% global.modals = BLOCK %]
+  <div id="attributes-modal" class="modal fade modal--large" tabindex="-1" role="dialog" aria-labelledby="attributes-modal-label" style="display: none;">
+    <div class="modal__dialog" role="document">
+      <div class="modal__content">
+        <a class="modal__close close" data-dismiss="modal" aria-label="Close"><span class="icon-close"></span></a>
+        <div class="modal__header">
+          <h2 class="modal__title" id="attributes-modal-label">RADIUS Attributes</h2>
+        </div>
+        <div class="modal__body">
+          <div class="form-group">
+            <select id='radius-attributes' multiple='multiple'>
+            </select>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn--light" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn--primary add-button" data-dismiss="modal">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+[% END %]
+
+[% global.javascripts = BLOCK %]
+  [% USE date %]
+  [% INCLUDE inc/reactjs.tt %]
+
+  <link rel="stylesheet" href="/css/tables.css">
+  <script src="/js/autosize.min.js" type="text/javascript"></script>
+  <script src="/js/jquery.quicksearch.js" type="text/javascript"></script>
+  <script src="/js/jquery.multi-select.js" type="text/javascript"></script>
+  <script src="/js/table-checkbox.js"></script>
+  <script src="/js/certificates.js"></script>
+  <script src="/js/var_builder.js?[% version %]"></script>
+  <script src="/js/generate.js?[% version %]"></script>
+  <script src="/js/react-uis/dist/scheduler.js?[% version %]"></script>
+  <script src="/js/react-uis/dist/api_generate.js?[% version %]"></script>
+  <script src="/js/react-uis/dist/protoSelect.js?[% version %]"></script>
+  <script type="text/javascript">
+    var radius_dictionary = [% IF dictionary.defined %][% dictionary.json %];[% ELSE %]{};[% END %]
+  </script>
+[% END %]

@@ -1,0 +1,268 @@
+[% BLOCK nas_port %]
+  [% IF (port == 'Wireless-802.11' && !preferences.generate.item('NAS-Port-Type')) ||
+        (preferences.generate.item('NAS-Port-Type') == port) -%]
+      [% IF pr -%]
+         [% pr %]
+      [% ELSE -%]
+         checked
+      [% END %]
+  [% END %]
+[% END %]
+
+[% BLOCK other_nas %]
+  [% IF preferences.generate.item('NAS-Port-Type') && 
+        (preferences.generate.item('NAS-Port-Type') != 'Wireless-802.11' && preferences.generate.item('NAS-Port-Type') != 'Ethernet') %]
+    [% IF !h %]checked[% END %]
+  [% ELSE %]
+    [% IF h %]style="display: none;"[% END %]
+  [% END %]
+[% END %]
+
+[% BLOCK gv %]
+  [% IF preferences.generate.$n %]
+    value="[% preferences.generate.$n %]"
+  [% ELSE %]
+    value="[% d %]"
+  [% END %]
+[% END %]
+
+
+[% USE JSON %]
+  <div class="section">
+    <div class="row">
+      <div class="col-md-4 col-lg-3 col-xl-2 fixed-left-lg-up">
+        <div class="base-margin-left hidden-sm-down half-margin-bottom">
+          <div class="subheader no-margin-bottom">Preferences</div>
+          <a class="text-success flex disabled status text-small">
+            <div class="text-left">All saved</div>
+            <span class="icon half-margin-left icon-check-outline" aria-hidden="true"></span>
+          </a>
+        </div>
+        <ul class="tabs tabs--vertical switchable">
+          <li class="tab"><a href="/preferences/tab/defaults/" data-target="defaults">Defaults</a></li>
+          <li class="tab"><a href="/preferences/tab/pap-specific/" data-target="pap-specific">PAP/CHAP Specific</a></li>
+          <li class="tab"><a href="/preferences/tab/variable-mac/" data-target="variable-mac">MAC Addresses</a></li>
+          <li class="tab"><a href="/preferences/tab/variable-ip/" data-target="variable-ip">IP Addresses</a></li>
+        </ul>
+      </div>
+      <div class="col-md-8 col-lg-9 col-xl-10 offset-xl-2 offset-lg-3">
+        <div class="tab-content">
+          <div class="tab-pane animated fadeIn section no-padding" data-section="generate" id="defaults">
+            <div class="tab-header">
+              <h2 class="display-3 no-margin text-capitalize flex-fluid">Defaults</h2>
+            </div>
+            <div class="panel no-padding base-margin-top dbl-margin-bottom tab-body">
+                <div class="form-group"><div class="form-group__text"><label>Connections type</label></div></div>
+                <div class="row flex-center-vertical base-margin-bottom">
+                  <div class="col text-center">
+                    <label class="radio radio--icon">
+                      <input type="radio" name="NAS-Port-Type" [% PROCESS nas_port port='Wireless-802.11' %] value="Wireless-802.11">
+                      <span class="radio__input hide"></span>
+                      <span class="radio__label text-center"><span class="icon-wifi icon-size-48"></span><br>Wireless (802.11)</span>
+                    </label>
+                  </div>
+                  <div class="col text-center">
+                    <label class="radio radio--icon">
+                      <input type="radio" name="NAS-Port-Type" [% PROCESS nas_port port='Ethernet' %] value="Ethernet">
+                      <span class="radio__input hide"></span>
+                      <span class="radio__label text-center"><span class="icon-ethernet icon-size-48"></span><br>Wired (Ethernet)</span>
+                    </label>
+                  </div>
+                  <div class="col text-center">
+                    <div class="flex flex-center-vertical flex-center-horizontal">
+                      <div class="base-margin-right">
+                        <label class="radio radio--icon">
+                          <input type="radio" name="NAS-Port-Type" [% PROCESS other_nas %] value="Other">
+                          <span class="radio__input hide"></span>
+                          <span class="radio__label text-center"><span class="icon-more icon-size-48"></span><br>Other</span>
+                        </label>
+                      </div>
+                      <div class="flex-fluid" [% PROCESS other_nas h=1 %] id="NAS-Port-Type-flex">
+                        <div class="form-group no-margin">
+                          <div class="form-group__text select">
+                            <select id="NAS-Port-Type-selector" class="not-submit">
+                              <option [% PROCESS nas_port port='Async' pr='selected' %] value="Async">Async</option>
+                              <option [% PROCESS nas_port port='Sync' pr='selected' %] value="Sync">Sync</option>
+                              <option [% PROCESS nas_port port='ISDN' pr='selected' %] value="ISDN">ISDN</option>
+                              <option [% PROCESS nas_port port='ISDN-V120' pr='selected' %] value="ISDN-V120">ISDN-V120</option>
+                              <option [% PROCESS nas_port port='ISDN-V110' pr='selected' %] value="ISDN-V110">ISDN-V110</option>
+                              <option [% PROCESS nas_port port='Virtual' pr='selected' %] value="Virtual">Virtual</option>
+                              <option [% PROCESS nas_port port='PIAFS' pr='selected' %] value="PIAFS">PIAFS</option>
+                              <option [% PROCESS nas_port port='HDLC-Clear-Channel' pr='selected' %] value="HDLC-Clear-Channel">HDLC-Clear-Channel</option>
+                              <option [% PROCESS nas_port port='X.25' pr='selected' %] value="X.25">X.25</option>
+                              <option [% PROCESS nas_port port='X.75' pr='selected' %] value="X.75">X.75</option>
+                              <option [% PROCESS nas_port port='G.3-Fax' pr='selected' %] value="G.3-Fax">G.3-Fax</option>
+                              <option [% PROCESS nas_port port='SDSL' pr='selected' %] value="SDSL">SDSL</option>
+                              <option [% PROCESS nas_port port='ADSL-CAP' pr='selected' %] value="ADSL-CAP">ADSL-CAP</option>
+                              <option [% PROCESS nas_port port='ADSL-DMT' pr='selected' %] value="ADSL-DMT">ADSL-DMT</option>
+                              <option [% PROCESS nas_port port='IDSL' pr='selected' %] value="IDSL">IDSL</option>
+                              <option [% PROCESS nas_port port='xDSL' pr='selected' %] value="xDSL">xDSL</option>
+                              <option [% PROCESS nas_port port='Cable' pr='selected' %] value="Cable">Cable</option>
+                              <option [% PROCESS nas_port port='Wireless-Other' pr='selected' %] value="Wireless-Other">Wireless-Other</option>
+                              <option [% PROCESS nas_port port='Token-Ring' pr='selected' %] value="Token-Ring">Token-Ring</option>
+                              <option [% PROCESS nas_port port='FDDI' pr='selected' %] value="FDDI">FDDI</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <div class="form-group__text">
+                        <input type="number" id="count" name="count" min="1" max="[% settings.processes.max_sessions %]" [% PROCESS gv n="count" d="10" %] required >
+                        <label for="count">Amount of sessions <span class="text-xsmall">(up to [% settings.processes.max_sessions %])</span></label>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="form-group__text">
+                        <input type="text" id="latency" name="latency" [% PROCESS gv n="latency" d="0" %]>
+                        <label for="latency">
+                          Latency between sessions <span class="text-xsmall">(milliseconds)</span>
+                          <span
+                            data-balloon="Can be integer or range in format 'N1..N2'. If range is specified, random number will be used from the range." 
+                            data-balloon-length="large" data-balloon-pos="up">
+                            <span class="icon-question-circle" style="cursor: help;"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </div> <!-- /latency -->
+                    <label class="switch switch--small form-group">
+                      <input type="checkbox" 
+                        [% IF !preferences.generate.item('send-acct-start').defined || preferences.generate.item('send-acct-start') %]checked[% END %] 
+                        name="send-acct-start" id="send-acct-start-switch">
+                      <span class="switch__input"></span>
+                      <span class="switch__label">Send Accounting-Start if authenticated successfully</span>
+                    </label>
+                    <div class="form-group half-margin-top"
+                      [% IF preferences.generate.item('send-acct-start').defined && !preferences.generate.item('send-acct-start') %]style="display: none;"[% END %]>
+                      <div class="form-group__text">
+                        <input type="text" id="accounting-latency" name="accounting-latency" [% PROCESS gv n="accounting-latency" d="0" %]>
+                        <label for="accounting-latency">
+                          Latency after succesfull authentication <span class="text-xsmall">(milliseconds)</span>
+                          <span
+                            data-balloon="Can be integer or range in format 'N1..N2'. If range is specified, random number will be used from the range." 
+                            data-balloon-length="large" data-balloon-pos="up">
+                            <span class="icon-question-circle" style="cursor: help;"></span>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="col">
+
+                    <div class="flex form-group--margin">
+                      <div class="form-group flex-fill half-margin-right">
+                        <div class="form-group__text">
+                          <input type="number" id="framed-mtu" name="framed-mtu" min="120" max="65536" [% PROCESS gv n="framed-mtu" d="1300" %] required 
+                            [% IF preferences.generate.item('include-framed-mtu').defined && !preferences.generate.item('include-framed-mtu') %]disabled[% END %]>
+                          <label for="framed-mtu">MTU <span class="text-xsmall">(Framed-MTU)</span></label>
+                        </div>
+                      </div>
+                      <div class="flex-center-vertical base-margin-top">
+                        <label class="switch switch--small">
+                          <input name="include-framed-mtu" id="framed-mtu-switch" type="checkbox" 
+                            [% IF !preferences.generate.item('include-framed-mtu').defined || preferences.generate.item('include-framed-mtu') %]checked[% END %]>
+                          <span class="switch__input"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <label class="switch switch--small form-group">
+                      <input type="checkbox" 
+                        [% IF !preferences.generate.item('save-sessions').defined || preferences.generate.item('save-sessions') %]checked[% END %] 
+                        name="save-sessions" id="save-sessions" value="1">
+                      <span class="switch__input"></span>
+                      <span class="switch__label">Save sessions</span>
+                    </label> <!-- /save -->
+                    <div class="form-group" id="save-options" 
+                      [% IF preferences.generate.item('save-sessions').defined && !preferences.generate.item('save-sessions') %]style="display: none;"[% END %]>
+                      <div class="form-group__text">
+                        <input id="bulk-name" type="text" name="bulk-name" [% PROCESS gv n="bulk-name" d="" %]>
+                        <label for="bulk-name" style="white-space: nowrap;">Bulk name</label>
+                      </div>
+                    </div> <!-- /save-options -->
+                    <div class="form-group">
+                      <label class="switch switch--small">
+                        <input type="checkbox" name="async" id="async-switch" value="1" 
+                          [% IF preferences.generate.item('async').defined && preferences.generate.item('async') %]checked[% END %]>
+                        <span class="switch__input"></span>
+                        <span class="switch__label">Multi-thread generation</span>
+                      </label> <!-- /async -->
+                    </div>
+                    <div class="form-group">
+                      <label class="switch switch--small">
+                        <input type="checkbox" value="1" 
+                          [% IF !preferences.generate.item('download-dacl').defined || preferences.generate.item('download-dacl') %]checked[% END %]
+                          name="download-dacl">
+                        <span class="switch__input"></span>
+                        <span class="switch__label">Download DACLs</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+            </div><!-- tab-body -->
+          </div><!-- tab-pane -->
+          <div class="tab-pane animated fadeIn section no-padding" data-section="generate" id="pap-specific">
+            <div class="tab-header">
+              <h2 class="display-3 no-margin text-capitalize flex-fluid">PAP/CHAP Specific</h2>
+            </div>
+            <div class="panel no-padding base-margin-top dbl-margin-bottom tab-body">
+              <div class="form-group">
+                <label class="switch switch--small">
+                  <input type="checkbox" value="1" 
+                    [% IF !preferences.generate.item('chap').defined || preferences.generate.item('chap') %]checked[% END %] 
+                    name="chap">
+                  <span class="switch__input"></span>
+                  <span class="switch__label">Use CHAP</span>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label class="switch switch--small half-margin-top">
+                  <input type="checkbox" value="1" 
+                    [% IF !preferences.generate.item('pap-count-as-creds').defined || preferences.generate.item('pap-count-as-creds') %]checked[% END %] 
+                    name="pap-count-as-creds">
+                  <span class="switch__input"></span>
+                  <span class="switch__label">Amount of sessions equals to amount of credentials</span>
+                </label>
+              </div>
+            </div>
+          </div><!-- tab-pane -->
+          <div class="tab-pane animated fadeIn" id="variable-mac">
+            <div class="tab-header">
+              <h2 class="display-3 no-margin text-capitalize flex-fluid">MAC Addresses</h2>
+              <h5 class="base-margin-bottom subheading">How MAC address should be generated for each session. Variable name - $MAC$</h5>
+            </div>
+            <div class="panel no-padding base-margin-top dbl-margin-bottom tab-body" data-attribute="vars" data-section="variables">
+              <div class="panel-body">
+              </div>
+            </div>
+          </div><!-- tab-pane -->
+          <div class="tab-pane animated fadeIn" id="variable-ip">
+            <div class="tab-header">
+              <h2 class="display-3 no-margin text-capitalize flex-fluid">IP Addresses</h2>
+              <h5 class="base-margin-bottom subheading">How IP address should be generated for each session. Variable name - $IP$</h5>
+            </div>
+            <div class="panel no-padding base-margin-top dbl-margin-bottom tab-body" data-attribute="vars" data-section="variables">
+              <div class="panel-body">
+              </div>
+            </div>
+          </div><!-- tab-pane -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+[% global.modals = BLOCK %]
+[% END %]
+
+[% global.javascripts = BLOCK %]
+  [% USE date %]
+  <script src="/js/var_builder.js?[% version %]"></script>
+  <script src="/js/data-saver.js?[% version %]"></script>
+  <script src="/js/preferences.js?[% version %]"></script>
+[% END %]

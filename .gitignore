@@ -1,0 +1,51 @@
+# OS generated files #
+######################
+.vstags
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Tests #
+#########
+/t
+/t/*
+/docs
+/docs/*
+
+# Other stuff #
+###############
+/certificates.tar
+/dependencies.txt
+/full-install.log
+/logo
+/logo/*
+_ignore_*
+/lib/Diameter/
+/lib/dictionaries/diameter.dictionary.yaml
+/.vscode
+
+#    Node stuff      #
+######################
+node_modules
+package-lock.json
+
+# Docker stuff #
+################
+docker-compose.override.yml
+
+# Pre-go #
+##########
+
+/frontend-svc/tmp
+/frontend-svc/build
+/frontend-svc/bin
+/frontend-svc/*/dist
+
+.env
+config.dev.yml
+config.local.yml
+/frontend-svc/sqlboiler.toml

@@ -1,0 +1,34 @@
+<script src="/js/react/lodash.min.js?4.17.15"></script>
+<script src="/js/react/anime.min.js?3.2.0"></script>
+
+[% IF debug %] 
+<script src="https://unpkg.com/react@16.13.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@16.13.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-is@16.13.1/umd/react-is.development.js" crossorigin></script>
+<script src="https://unpkg.com/prop-types@15.7.2/prop-types.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-sortable-hoc@1.9.1/dist/react-sortable-hoc.umd.js" crossorigin></script>
+<script src="https://unpkg.com/react-router-dom@5.1.2/umd/react-router-dom.js" crossorigin></script>
+<script src="https://unpkg.com/luxon@1.21.3/build/global/luxon.min.js" crossorigin></script>
+<script src="/js/react-uis/dist/for-formik.js"></script>
+<script src="https://unpkg.com/formik@2.1.4/dist/formik.umd.development.js" crossorigin></script>
+[% ELSE %]
+<script src="/js/react/react.production.min.js?16.13"></script>
+<script src="/js/react/react-dom.production.min.js?16.13"></script>
+<script src="/js/react/react-is.production.min.js?16.13"></script>
+<script src="/js/react/prop-types.min.js?15.7.2"></script>
+<script src="/js/react/react-sortable-hoc.umd.min.js?1.9.1"></script>
+<script src="/js/react/react-router-dom.min.js?5.1.2"></script>
+<script src="/js/react/luxon.min.js?1.21.3"></script>
+<script src="/js/react-uis/dist/for-formik.js"></script>
+<script src="/js/react/formik.umd.production.min.js?2.1.4"></script>
+[% END %]
+
+<script src="/js/react/react-json-tree.min.js?0.11.2"></script>
+<script src="/js/react/react-modal.min.js?3.9.1"></script>
+<script src="/js/react/axios.min.js?0.19.2"></script>
+
+[% IF debug %] 
+<script src="/js/react/react-cui.umd.js?2.0.0"></script>
+[% ELSE %]
+<script src="/js/react/react-cui.umd.min.js?2.0.0"></script>
+[% END %]

@@ -1,0 +1,1 @@
+export const helpBlockAnimation = 'animated fastest fadeIn';

@@ -1,0 +1,28 @@
+.panel .tab p:first-of-type {
+    margin-top: 0;
+}
+
+a.expand span.glyphicon-menu-right,
+a.expand span.icon-chevron-right,
+a.advanced-toggle span.advanced-chevron {
+    -webkit-transition: -webkit-transform 0.1s ease-in;
+    transition: -webkit-transform 0.1s ease-in;
+    transition: transform 0.1s ease-in;
+    transition: transform 0.1s ease-in, -webkit-transform 0.1s ease-in; }
+a.expand.expanded span.glyphicon-menu-right,
+a.expand.expanded span.icon-chevron-right,
+a.advanced-toggle.toggled span.advanced-chevron {
+    -webkit-transition: -webkit-transform 0.1s ease-in-out;
+    transition: -webkit-transform 0.1s ease-in-out;
+    transition: transform 0.1s ease-in-out;
+    transition: transform 0.1s ease-in-out, -webkit-transform 0.1s ease-in-out; }
+
+a.expand.expanded span.glyphicon-menu-right,
+a.expand.expanded span.icon-chevron-right {
+    -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
+}
+a.advanced-toggle.toggled span.advanced-chevron {
+    -webkit-transform: rotate(180deg);
+            transform: rotate(180deg);
+}

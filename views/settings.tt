@@ -1,0 +1,27 @@
+<div class="section">
+  <div class="tab-pane active">
+    <div class="flex-center-vertical">
+        <h2 class="display-1 no-margin text-capitalize flex-fluid">Settings</h2>
+    </div>
+    <div id="settings-container" class="base-margin-top row">
+      [% FOREACH side IN side_menu %]
+        [% NEXT IF side.name != 'my-settings' %]
+        [% FOREACH ch IN side.children %]
+          <div class="col-md-6 col-lg-4 col-xl-3 qtr-margin-bottom animated fadeIn">
+            <div class="panel panel--bordered-right panel--bordered-bottom panel--compressed">
+              <a href="[% ch.link %]" name="[% ch.name %]">
+                <h4 class="text-capitalize no-margin">[% ch.title %]</h4>
+              </a>
+            </div>
+          </div>
+        [% END %]
+      [% END %]
+    </div>
+  </div>
+</div>
+
+[% global.modals = BLOCK %]
+[% END %]
+
+[% global.javascripts = BLOCK %]
+[% END %]

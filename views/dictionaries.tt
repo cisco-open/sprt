@@ -1,0 +1,34 @@
+  <div class="section">
+    <div class="row">
+      <div class="col-md-4 col-lg-3 col-xl-2 fixed-left-lg-up">
+        <div class="subheader base-margin-left hidden-sm-down">Types</div>
+        <ul class="tabs tabs--vertical" id="type-select-ul">
+          [% FOREACH type IN types %]
+            <li class="tab" data-type="[% type.name %]">
+              <a class="dictionary-type-link" href="/dictionaries/type/[% type.name %]/">
+                <div class="text-left flex-fluid">
+                [% IF type.defined('icon') %]
+                  <span class="[% type.icon %] half-margin-right"></span>
+                [% END %]
+                  <span class="title">[% type.title %]</span>
+                </div>
+              </a>
+            </li> 
+          [% END %]
+        </ul>
+      </div>
+      <div class="col-md-8 col-lg-9 col-xl-10 offset-xl-2 offset-lg-3">
+        <div class="tab-content animated fadeIn" id="dictionary-type-data">
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+[% global.modals = BLOCK %][% END %]
+
+[% global.javascripts = BLOCK %]
+<script>const CAN_GLOBALS = [% IF super_user -%]1[% ELSE -%]0[% END %];</script>
+<script src="/js/data-saver.js?[% version %]"></script>
+<script src="/js/dictionaries.js?[% version %]"></script>
+[% END %]

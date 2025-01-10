@@ -1,0 +1,127 @@
+---
+appname: plackGen
+async:
+  files_per_insert: 200
+  flow_directory: '/var/sprt/flows/{{owner}}/'
+  flow_file: 'flow_{{pid}}_{{idx}}.pragflow'
+  log_file: '/var/sprt/logs/{{owner}}/{{job_id}}/{{logger_name}}.log'
+  user: nobody
+charset: UTF-8
+coa:
+  listen_on: '*'
+  port: 1500
+  recv_length: 8192
+debug: 0
+dictionaries:
+  - /var/sprt/lib/dictionaries/dictionary.rfc2865
+  - /var/sprt/lib/dictionaries/dictionary.rfc2866
+  - /var/sprt/lib/dictionaries/dictionary.rfc2867
+  - /var/sprt/lib/dictionaries/dictionary.rfc2868
+  - /var/sprt/lib/dictionaries/dictionary.rfc2869
+  - /var/sprt/lib/dictionaries/dictionary.rfc3162
+  - /var/sprt/lib/dictionaries/dictionary.rfc3576
+  - /var/sprt/lib/dictionaries/dictionary.rfc3580
+  - /var/sprt/lib/dictionaries/dictionary.rfc5176
+  - /var/sprt/lib/dictionaries/dictionary.cisco
+  - /var/sprt/lib/dictionaries/dictionary.cisco.asa
+  - /var/sprt/lib/dictionaries/dictionary.airespace
+  - /var/sprt/lib/dictionaries/dictionary.microsoft
+directory:
+  certificates: '/var/sprt/certificates/{{user}}/{{type}}/{{id}}/'
+  creator: nobody
+dynamic_dictionaries:
+  mask: dictionary\.(.+)
+  path: /var/sprt/lib/dictionaries/
+engines:
+  session:
+    YAML:
+      cookie_duration: 604800
+      cookie_name: sprt.session
+      session_dir: /tmp/sprt-sessions
+  template:
+    template_toolkit:
+      ENCODING: utf8
+error_template: views/error.tt
+external_auth: 0
+generator:
+  # host_socket: /var/run/sprt-host-socket-prod.sock # FIXME: use TCP
+  port: 52525
+  max_cli_length: 5120
+  max_var_tries: 10000
+  patterns:
+    session_id: uc(hex(rand(4096..65535)))/uc($MAC$)/uc(hex(rand(4096..65535)))
+  watcher_lifetime: 15
+hostname: 172.19.0.1
+layout: main
+log: debug
+log4perl: |-
+  log4perl.logger.main = DEBUG, DBI
+  log4perl.appender.DBI = Log::Log4perl::Appender::DBI
+  log4perl.appender.DBI.datasource=DBI:Pg:dbname=sprt;host=172.19.0.1;port=5432
+  log4perl.appender.DBI.username=sprt
+  log4perl.appender.DBI.password=test123
+  log4perl.appender.DBI.sql=INSERT INTO "logs" ("id", "timestamp", "loglevel", "message", "owner", "chunk") VALUES (uuid_generate_v1(),?,?,?,?,?)
+  log4perl.appender.DBI.params.1=%d{yyyy-MM-dd HH:mm:ss.SSS}
+  log4perl.appender.DBI.params.2=%p
+  log4perl.appender.DBI.usePreparedStmt=1
+  log4perl.appender.DBI.layout=Log::Log4perl::Layout::NoopLayout
+  log4perl.appender.DBI.warp_message=0
+  log4perl.appender.DBI.attrs.AutoInactiveDestroy=1
+nad:
+  allowed:
+    - 172.19.0.4
+  exclude: '^\s*(127\.0\.0\.\d+|FE80::.*|::1)\s*$'
+  ip: 172.19.0.4
+one_user_mode: 1
+one_user_opts:
+  givenName: User
+  super: 0
+  uid: user
+plugins:
+  Database:
+    connection_check_threshold: 10
+    database: sprt
+    dbi_params:
+      AutoCommit: 1
+      RaiseError: 1
+    driver: Pg
+    host: 172.19.0.1
+    log_queries: 1
+    password: test123
+    port: 5432
+    username: sprt
+processes:
+  max: 4
+  max_sessions: 1000
+  max_threads: 15
+proto: https
+pxgrid:
+  address: 127.0.0.1:8910
+  token: fbj5qCi89XAhBvrY7dcxSKEFaRtmTwuN
+radius:
+  retransmits: 0
+  timeout: 5
+redis:
+  server: 172.19.0.1:6379
+scep:
+  listen: /var/run/radgen-scep-socket
+  type: socket
+session: YAML
+show_errors: 1
+startup_info: 1
+supers:
+  - vkumov
+tables:
+  certificates: certificates
+  cli: cli
+  dictionaries: dictionaries
+  flows: flows
+  jobs: jobs
+  logs: logs
+  scep_servers: scep_servers
+  servers: servers
+  sessions: sessions
+  templates: templates
+  users: users
+template: template_toolkit
+

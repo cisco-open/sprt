@@ -1,0 +1,17 @@
+<nav class="header" role="navigation">
+  <div class="container-fluid flex-middle">
+      <div class="header-panels">
+          <div class="header-panel">
+              <a class="header__logo" href="/">
+                  <img src="/favicon.png" style="max-width: 36px; width: 36px; height: 36px;" title="SPRT - Simplified PxGrid, RADIUS and TACACS toolkit">
+              </a>
+              <h1 class="header__title hidden-lg-down">
+                  <span>[% pageTitle %]</span>
+              </h1>
+          </div>
+          <div class="header-panel header-panel--right react-app" id="react-header-controls">
+              
+          </div>
+      </div>
+  </div>
+</nav>

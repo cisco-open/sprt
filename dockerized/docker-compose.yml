@@ -1,0 +1,104 @@
+version: "3"
+services:
+  redis:
+    image: "redis"
+    container_name: "redis.sprt"
+    expose:
+      - "6379"
+
+  scep:
+    image: ghcr.io/cisco-open/sprt-scep:latest
+    container_name: "scep.sprt"
+    expose:
+      - "5555"
+
+  pxgrider_db:
+    image: ghcr.io/cisco-open/sprt-pxgrider_db:latest
+    container_name: "pxgrider.postgres.sprt"
+    environment:
+      - POSTGRES_USER=sprt
+      - POSTGRES_PASSWORD=InternalDBP@ssw0rd
+      - POSTGRES_DB=pxgrider
+    expose:
+      - "5432"
+
+  pxgrider:
+    image: ghcr.io/cisco-open/sprt-pxgrider:latest
+    container_name: "pxgrider.sprt"
+    environment:
+      - PXGRIDER_DB=postgres://sprt:InternalDBP@ssw0rd@pxgrider.postgres.sprt:5432/pxgrider
+      - PXGRIDER_PORT=8910
+      - SPRT_TOKEN=iUGb24vHEnerzMXT9DBudkWRa3AC8f75
+    depends_on:
+      - pxgrider_db
+    expose:
+      - "8910"
+
+  sprt_db:
+    image: ghcr.io/cisco-open/sprt-sprt_db:latest
+    container_name: "db.postgres.sprt"
+    environment:
+      - POSTGRES_USER=sprt
+      - POSTGRES_PASSWORD=AnotherDBP@ssw0rd
+      - POSTGRES_DB=sprt
+    expose:
+      - "5432"
+
+  sprt:
+    container_name: "sprt"
+    image: ghcr.io/cisco-open/sprt-sprt:latest
+    ports:
+      - "80:80"
+      - "1700:1700/udp"
+    environment:
+      - SPRT_HOSTNAME=my.sprt
+      - SPRT_USER_MODE=single
+      - SPRT_USER_UID=user
+      - SPRT_USER_GIVEN=User
+      - SPRT_USER_SUPER=0
+      - SPRT_USER_SUPER_PASSWORD=password
+      - SPRT_REAL_IP=<REAL_IP_ADDRESS_OF_MACHINE>
+      - SPRT_DB_HOST=db.postgres.sprt
+      - SPRT_DB_NAME=sprt
+      - SPRT_DB_PORT=5432
+      - SPRT_DB_USER=sprt
+      - SPRT_DB_PASSWORD=AnotherDBP@ssw0rd
+      - SPRT_REDIS_SERVER=redis.sprt:6379
+      - SPRT_PX_ADDRESS=pxgrider.sprt:8910
+      - SPRT_PX_TOKEN=iUGb24vHEnerzMXT9DBudkWRa3AC8f75
+      - SPRT_RADIUS_TIMEOUT=5
+      - SPRT_RADIUS_RETRANSMITS=0
+      - SPRT_WATCHER_LIFETIME=604800
+      - SPRT_GENERATOR_PORT=52525
+      - SPRT_DYNAMIC_DICTIONARIES=/var/sprt/lib/dictionaries/
+      - SPRT_COA_PORT=1700
+      - SPRT_PROCESSES_MAX=4
+      - SPRT_PROCESSES_MAX_THREADS=16
+      - SPRT_PROCESSES_MAX_SESSIONS=100000
+      - SPRT_SUPERS=vkumov
+      - SPRT_SCEP_TYPE=port
+      - SPRT_SCEP_LISTEN=scep.sprt:5555
+      - SPRT_CERTIFICATES_DIRECTORY=/var/sprt/certificates/{{user}}/{{type}}/{{id}}/
+      - SPRT_ASYNC_LOG_FILE=/var/sprt/logs/{{owner}}/{{job_id}}/{{logger_name}}.log
+      - SPRT_ASYNC_FLOW_DIRECTORY=/var/sprt/flows/{{owner}}/
+      - SPRT_DEBUG=0
+
+      # - SPRT_SYSLOG_PROTO=udp
+      # - SPRT_SYSLOG_HOST=10.48.26.61
+      # - SPRT_SYSLOG_PORT=514
+      # - SPRT_SYSLOG_FACILITY=
+      # - SPRT_SYSLOG_SENDER=
+    depends_on:
+      - sprt_db
+      - pxgrider
+      - redis
+      - scep
+    volumes:
+      - certificates:/var/sprt/certificates/
+      - logs:/var/sprt/logs/
+      - crons:/var/spool/cron/crontabs/
+
+volumes:
+  certificates:
+  logs:
+  crons:

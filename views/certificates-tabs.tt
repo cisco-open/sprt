@@ -1,0 +1,7 @@
+<div class="subheader base-margin-left hidden-sm-down">Certificates</div>
+<ul class="tabs tabs--vertical">
+    <li class="tab[% IF active == 'identity' %] active[% END %]"><a class="cert-link" href="/cert/identity/">Identity Certificates</a></li> 
+    <li class="tab[% IF active == 'trusted' %] active[% END %]"><a class="cert-link" href="/cert/trusted/">Trusted Certificates</a></li> 
+    <li class="tab[% IF active == 'scep' %] active[% END %]"><a class="cert-link" href="/cert/scep/">SCEP</a></li> 
+    <li class="tab[% IF active == 'templates' %] active[% END %]"><a class="cert-link" href="/cert/templates/">Templates</a></li> 
+</ul>

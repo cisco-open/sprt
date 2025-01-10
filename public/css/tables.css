@@ -1,0 +1,34 @@
+.table.table--sortable th.sortable {
+	position: relative;
+}
+
+.table.table--sortable th.sortable:after {
+    position: absolute;
+    right: 10px;
+    border: none;
+    font-family: "cui-font";
+	font-size: inherit;
+	font-style: normal;
+	font-weight: normal;
+	speak: none;
+    width: auto;
+    background: none;
+}
+
+.table.table--sortable th.sortable.sorted:after {
+	display: block;
+	visibility: visible;
+}
+
+/* .table.table--sortable th.sortable.sorted.asc:after {
+	content: "";
+}
+
+.table.table--sortable th.sortable.sorted.desc:after {
+	content: "";
+} */
+
+.table.table--fixed th.checkbox-only, .table.table--fixed td.checkbox-only {
+	width: 43px;
+}
+

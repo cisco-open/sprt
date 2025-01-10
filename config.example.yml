@@ -1,0 +1,221 @@
+# Your application's name, don't change
+appname: "plackGen"
+
+# The default layout to use for your application (located in
+# views/layouts/main.tt)
+layout: "main"
+
+# when the charset is set to UTF-8 Dancer2 will handle for you
+# all the magic of encoding and decoding. You should not care
+# about unicode within your app when this setting is set (recommended).
+charset: "UTF-8"
+
+# template engine
+# simple: default and very basic template engine
+# template_toolkit: TT
+
+template: "template_toolkit"
+
+show_errors: 1
+error_template: 'views/error.tt'
+
+# session engine
+
+session: YAML
+engines:
+  session:
+    YAML:
+      cookie_name: sprt.session
+      session_dir: /tmp/sprt-sessions
+      cookie_duration: 604800
+  template:
+    template_toolkit:
+      ENCODING: utf8
+
+# DB configuration
+
+plugins:
+  Database:
+    driver: 'Pg'
+    database: 'DATABASE_NAME'
+    host: 'localhost'
+    port: 5432
+    username: 'DB_USER'
+    password: 'DB_PASSWORD'
+    connection_check_threshold: 10
+    dbi_params:
+      RaiseError: 1
+      AutoCommit: 1
+    log_queries: 1
+
+tables:
+  sessions: "sessions"
+  tacacs_sessions: "tacacs_sessions"
+  flows: "flows"
+  jobs: "jobs"
+  logs: "logs"
+  cli: "cli"
+  scep_servers: "scep_servers"
+  certificates: "certificates"
+  templates: "templates"
+  servers: "servers"
+  users: "users"
+  dictionaries: "dictionaries"
+
+# Login options
+
+external_auth: 0
+
+one_user_mode: 1
+one_user_opts:
+  uid: user
+  givenName: User
+  super: 0
+  super_pass: PASSWORD
+
+# Admins
+
+supers:
+  - vkumov
+
+# Generator options
+
+generator: 
+  max_var_tries: 10000
+  max_cli_length: 5120
+  patterns:
+    session_id: uc(hex(rand(4096..65535)))/uc($MAC$)/uc(hex(rand(4096..65535)))
+  # host_socket: /var/run/sprt-host-socket-prod.sock
+  port: 52525
+  watcher_lifetime: 86400
+
+processes:
+  max: 4
+  max_threads: 16
+  max_sessions: 100000
+
+# Async options
+# extension of flow_file MUST be .pragflow
+# extension of log_file MUST be .log
+
+async:
+  log_file: /PATH/TO/LOGS/{{owner}}/{{job_id}}/{{logger_name}}.log
+  flow_directory: /PATH/TO/FLOWS/{{owner}}/
+  flow_file: flow_{{pid}}_{{idx}}.pragflow
+  user: nobody
+  files_per_insert: 200
+
+# Default RADIUS dictionaries
+
+dictionaries:
+  - /usr/share/freeradius/dictionary.rfc2865
+  - /usr/share/freeradius/dictionary.rfc2866
+  - /usr/share/freeradius/dictionary.rfc2867
+  - /usr/share/freeradius/dictionary.rfc2868
+  - /usr/share/freeradius/dictionary.rfc2869
+  - /usr/share/freeradius/dictionary.rfc3162
+  - /usr/share/freeradius/dictionary.rfc3576
+  - /usr/share/freeradius/dictionary.rfc3580
+  - /usr/share/freeradius/dictionary.rfc5176
+  - /usr/share/freeradius/dictionary.cisco
+  - /usr/share/freeradius/dictionary.cisco.asa
+  - /usr/share/freeradius/dictionary.airespace
+  - /usr/share/freeradius/dictionary.microsoft
+
+dynamic_dictionaries: 
+  path: "/usr/share/freeradius/"
+  mask: "dictionary\.(.+)"
+
+# NAD config
+
+hostname: 'FQDN'
+proto: "https"
+nad:
+  ip: 'NAD_IP'
+  exclude: "^\s*(127\.0\.0\.\d+|FE80::.*|::1)\s*$"
+radius:
+  timeout: 5
+  retransmits: 0
+
+# Logger configuration
+
+log4perl: |
+  log4perl.logger.main = DEBUG, DBI
+
+  log4perl.appender.DBI = Log::Log4perl::Appender::DBI
+  log4perl.appender.DBI.datasource=DBI:Pg:dbname=DATABASE_NAME;host=localhost;port=6432
+  log4perl.appender.DBI.username=DB_USER
+  log4perl.appender.DBI.password=DB_PASSWORD
+  log4perl.appender.DBI.sql=INSERT INTO "logs" ("id", "timestamp", "loglevel", "message", "owner", "chunk") VALUES (uuid_generate_v1(),?,?,?,?,?)
+  log4perl.appender.DBI.params.1=%d{yyyy-MM-dd HH:mm:ss.SSS}
+  log4perl.appender.DBI.params.2=%p
+  log4perl.appender.DBI.usePreparedStmt=1
+  log4perl.appender.DBI.layout=Log::Log4perl::Layout::NoopLayout
+  log4perl.appender.DBI.warp_message=0
+  log4perl.appender.DBI.attrs.AutoInactiveDestroy=1
+
+# SCEP client configuration
+
+scep:
+  type: socket
+  listen: /var/run/radgen-scep-socket
+
+# pxGrider integration
+pxgrid:
+  address: 127.0.0.1:8910
+  token: fbj5qCi89XAhBvrY7dcxSKEFaRtmTwuN
+
+# Directories
+
+directory:
+  certificates: /PATH/TO/certificates/{{user}}/{{type}}/{{id}}/
+  creator: nobody
+
+# OAuth
+oauth:
+  client_id: unknown
+  secret: secret
+
+# CoA options
+coa:
+  listen_on: "*"
+  port: 1700
+  recv_length: 8192
+
+# Scheduler
+cron:
+  user: root
+  max_per_user: 4
+
+# Redis options
+redis:
+  server: "127.0.0.1:6379"
+
+# Remote Syslog
+syslog:
+  proto:
+    _env: "SPRT_SYSLOG_PROTO"
+    _default: "udp" # "udp" or "tcp"
+  hostname: 
+    _env: "SPRT_SYSLOG_HOST"
+    _default: "" # the destination hostname
+  port: 
+    _env: "SPRT_SYSLOG_PORT"
+    _type: "int"
+    _default: 514
+  facility:
+    _env: "SPRT_SYSLOG_FACILITY"
+    _default: "local0"
+  severity: 
+    _env: "SPRT_SYSLOG_SEVERITY"
+    _default: "info"
+  sender: 
+    _env: "SPRT_SYSLOG_SENDER"
+    _default: ""
+  name: 
+    _env: "SPRT_SYSLOG_NAME"
+    _default: "sprt"
+
+# Various
+
+debug: 0

@@ -1,0 +1,58 @@
+.cui .dropzone {
+    border: 1px dashed #dfdfdf;
+    cursor: pointer;
+    text-align: center;
+    height: auto;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    color: #58585b;
+    position: relative;
+    background: #ffffff;
+    box-shadow: none;
+    display: block;
+    margin: 0;
+    padding: 10px;
+}
+
+.cui .dropzone:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px rgba(1, 124, 173, 0.25);
+}
+
+.cui .dropzone:hover, .dropzone.dropzone-drag-hover {
+    border-color: #049fd9;
+}
+
+.cui .dropzone.dropzone--loose {
+    padding: 20px;
+}
+
+.cui .dropzone.dropzone--compressed {
+    padding: 5px;
+}
+
+.cui .dropzone:hover .file-drop__icon, .dropzone.dropzone-drag-hover .file-drop__icon {
+    color: #049fd9;
+}
+
+.cui .dropzone .dropzone-message .file-drop__icon {
+    font-size: 2rem;
+}
+
+.cui .dropzone .dropzone-previews {
+    
+}
+
+.cui .dropzone .dropzone-previews .file-drop__filecnt {
+    text-align: left;
+    color: #9e9ea2;
+    margin-top: 1.3125rem;
+}
+
+.cui .dropzone .file-drop__card {
+    margin-bottom: .625rem;
+}
+
+.cui .form-group--error .dropzone {
+    padding-right: 40px;
+    border-color: #e2231a;
+}

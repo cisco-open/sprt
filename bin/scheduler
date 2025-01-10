@@ -1,0 +1,14 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use utf8;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+use PRaG::Scheduler;
+
+my $app = PRaG::Scheduler->new_with_options();
+$app->start;
+
+1;

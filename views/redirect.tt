@@ -1,0 +1,36 @@
+[% FILTER collapse %]
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="refresh" content="[% time %];url=[% url %]" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>SPRT - Redirect</title>
+    <link rel="stylesheet" href="/css/cui-standard.min.css">
+    <link href="/css/cover.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body class="cui">
+    <div class="container">
+      <!-- Main component for a primary marketing message or call to action -->
+    </div> <!-- /container -->
+    <div class="flex flex-middle content" style="height: 100%">
+      <div class="container-fluid flex flex-center">
+        <div class="cover-container">
+          <div class="inner cover">
+            <h2 class="text-secondary">Redirect</h2>
+            <p>[% message %]</p>
+          </div><!-- /.inner.cover -->
+        </div><!-- /.cover-container -->
+      </div><!-- /.site-wrapper-inner -->
+    </div><!-- /.site-wrapper -->
+  </body>
+</html>
+[% END %]

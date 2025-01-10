@@ -1,0 +1,90 @@
+[% FILTER replace('<newline>', "\n") %][% FILTER collapse %]
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>SPRT[% IF debug %] (debug mode)[% END %] - [% title %]</title>
+
+  <link href="/css/cui-standard.min.css?2.0.2" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/animate.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  [% IF active == 'generate' %]
+  <link href="/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+  <link href="/css/generate.css?[% version %]" media="screen" rel="stylesheet" type="text/css">
+  [% END %]
+  [% IF active == 'logs' %]
+  <link rel="stylesheet" href="/css/json-viewer.css">
+  [% END %]
+  <link rel="stylesheet" href="/css/fixes.css?[% version %]">
+
+  <link rel="shortcut icon" type="image/png" href="/favicon.png"/>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body class="cui cui--animated" data-theme=[% IF ui_settings.theme == 'dark' %]"dark"[% ELSE %]"default"[% END %]>
+  <main>
+    [% INCLUDE "inc/header.tt" %]
+
+    <div class="content">
+      
+        <div class="container-fluid">
+          [% content %]
+        </div>
+    </div>
+  </main>
+[% IF global.modals %][% global.modals %][% END %]
+[% USE date %]
+[% USE JSON %]
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script type="text/javascript">
+      var page_settings = [% IF page_settings.defined %][% page_settings.json %];[% ELSE %]{};[% END %]
+      var page_attributes = [% IF page_attributes.defined %][% page_attributes.json %];[% ELSE %]{};[% END %]
+      [% IF side_menu %]
+         window.appMenu = { menu: [% side_menu.json %] };
+         window.userData = { 
+           user: [% displayName.json %], 
+           oneUser: [% one_user.json %], 
+           loggedIn: [% super_user.json %],
+           ui: [% ui_settings.json %],
+          };
+      [% END %]
+      window.process = { env: { NODE_ENV: 'production' } };
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" crossorigin></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js" crossorigin></script> 
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <!-- script src="/js/bootstrap.min.js"></script -->
+    <script src="/js/jquery-dateFormat.min.js"></script>
+    <script src="/js/bootstrap-notify.min.js"></script>
+    <script src="/js/toast-general.js"></script>  
+    <script src="/js/modals.js?[% version %]"></script>
+    <script src="/js/config.js?[% version %]"></script>
+    <script src="/js/js.js?[% version %]"></script>
+    [% INCLUDE "inc/reactjs.tt" %]
+    <script src="/js/react-uis/dist/header.js?[% version %]"></script>
+    [% IF global.javascripts %][% global.javascripts %][% END %]
+    [% IF forwarded %]
+      <script type="text/javascript">
+      $(function () {
+        [% FOREACH msg IN messages %]
+        toast('[% msg.type %]', '', '[% msg.message %]');
+        [% END %]
+        [% IF location %]
+        window.history.pushState("data","",location.origin+'[% location %]');
+        [% END %]
+      });
+    </script>
+    [% END %]
+  </body>
+  </html>
+[% END %][% END %]

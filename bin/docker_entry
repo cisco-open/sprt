@@ -1,0 +1,194 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use utf8;
+
+use 5.018;
+
+use AnyEvent;
+use EV;
+use Carp;
+use File::Basename;
+use Getopt::Long::Descriptive;
+use IPC::Open3 'open3';
+use Readonly;
+use Symbol 'gensym';
+
+my ( undef, $DIR, undef ) = fileparse(__FILE__);
+
+Readonly my $INTERVAL  => 5;
+Readonly my $VARIABLES => read_bash_vars();
+Readonly my @PID_VARS  => qw/PID_FILE UDP_SERVER_PID_FILE/;
+
+my ( $opt, $usage ) = describe_options(
+    'For Docker only %o',
+    [ 'port|p=i', 'Port to listen', { default => 80 } ],
+    [
+        'workers|w=i',
+        'Amount of GUI workers',
+        { default => $VARIABLES->{WORKERS} }
+    ],
+    [
+        'stop-on-exit|s',
+        'Stop all services if one died or watcher stoped',
+        { default => 0 }
+    ],
+    [],
+    [ 'help', 'print usage message and exit', { shortcircuit => 1 } ],
+);
+
+if ( $opt->help ) { print $usage->text; exit; }
+
+say 'Starting servers...';
+
+start_gui();
+start_dhost();
+start_udp();
+
+say 'Starting monitoring...';
+
+my $cv = AE::cv;
+
+my $w_interval = AE::timer $INTERVAL, $INTERVAL, sub {
+    foreach my $proc (@PID_VARS) {
+        my $pid = slurp( $VARIABLES->{$proc} );
+        if ( $ENV{SPRT_DEBUG} ) { say 'Checking ' . $pid . ' of ' . $proc; }
+        if ( !$pid ) {
+            $cv->send( 'No PID found in ' . $proc );
+            return;
+        }
+        chomp $pid;
+        my $exists = kill 'ZERO', $pid;
+        if ( !$exists ) {
+            $cv->send("PID $pid is dead ($proc)");
+            return;
+        }
+        else {
+            if ( $ENV{SPRT_DEBUG} ) { say 'PID is UP'; }
+        }
+    }
+    if ( $ENV{SPRT_DEBUG} ) { say 'Sleep now'; }
+};
+
+my $w_term = AE::signal TERM => sub { $cv->send('Got TERM'); };
+my $w_int  = AE::signal INT  => sub { $cv->send('Got INT'); };
+
+my $result = $cv->recv;
+say $result;
+
+stop_all();
+say 'Quiting monitoring...';
+
+sub slurp {
+    my $file = shift;
+    open my $fh, '<', $file or return;
+    local $/ = undef;
+    my $cont = <$fh>;
+    close $fh;
+    return $cont;
+}
+
+sub read_bash_vars {
+    my $f =
+      -e "${DIR}parameters_dev.sh"
+      ? "${DIR}parameters_dev.sh"
+      : "${DIR}parameters.sh";
+
+    my $bashcode = <<"__BASH__";
+. ${f};
+perl -MData::Dumper -e 'print Dumper \\\%ENV';
+__BASH__
+
+    my $VAR1;
+    eval qx{bash -c "$bashcode"};
+    return $VAR1;
+}
+
+sub start_gui {
+    say 'Starting GUI...';
+    my $start_gui =
+        q{start_server}
+      . q{ --port=}
+      . $opt->port
+      . q{ --pid-file=}
+      . $VARIABLES->{PID_FILE}
+      . q{ --status-file=}
+      . $VARIABLES->{STATUS_FILE}
+      . q{ --daemonize}
+      . q{ --log-file=/dev/null}
+      . q{ --signal-on-hup=QUIT -- starman}
+      . q{ --workers }
+      . $VARIABLES->{WORKERS} . q{ }
+      . $DIR
+      . 'app.psgi';
+
+    start_process($start_gui);
+
+    return;
+}
+
+sub start_dhost {
+    say 'Starting Daemons Host...';
+    my $start_gui =
+        $DIR
+      . q{generator_host}
+      . q{ --pid_file=}
+      . $VARIABLES->{DHOST_PID}
+      . q{ --log_file=}
+      . $VARIABLES->{DHOST_STATUS}
+      . q{ --background}
+      . q{ --setsid};
+
+    start_process($start_gui);
+
+    return;
+}
+
+sub start_udp {
+    say 'Starting UDP server...';
+    my $start_gui =
+        $DIR
+      . q{udp_server}
+      . q{ --pid_file=}
+      . $VARIABLES->{UDP_SERVER_PID_FILE}
+      . q{ --log_file=}
+      . $VARIABLES->{UDP_SERVER_LOG_FILE}
+      . q{ --background}
+      . q{ --setsid};
+
+    start_process($start_gui);
+
+    return;
+}
+
+sub start_process {
+    my $p = shift;
+
+    my ( $writer, $reader, $err );
+    $err = gensym;
+    my $pid = open3( $writer, $reader, $err, $p );
+    waitpid $pid, 0;
+    my $child_exit_status = $? >> 8;
+    if ( $child_exit_status != 0 ) {
+        my @output = <$reader>;    #Output here
+        my @errors = <$err>;       #Errors here, instead of the console
+        say 'Output', "\n", @output;
+        croak join "\n", @errors;
+    }
+    return;
+}
+
+sub stop_all {
+    return if !$opt->stop_on_exit;
+    foreach my $proc (@PID_VARS) {
+        my $pid = slurp( $VARIABLES->{$proc} );
+        next if !$pid;
+        say 'Stopping ' . $proc;
+        chomp $pid;
+        kill $proc eq 'PID_FILE' ? 'TERM' : 'INT', $pid;
+    }
+    return;
+}
+
+1;

@@ -1,0 +1,152 @@
+[% has_data = (identity && identity.size);
+   no_data_hide = '';
+   data_hide = '';
+   IF has_data;
+    SET no_data_hide = 'style="display: none;"';
+   ELSE;
+    SET data_hide = 'style="display: none;"';
+   END;
+%]
+
+<div class="section">
+    <div class="row">
+      <div class="col-md-4 col-lg-3 col-xl-2 fixed-left-lg-up">
+        [% active = 'identity' %]
+        [% INCLUDE 'certificates-tabs.tt' %]
+      </div>
+      <div class="col-md-8 col-lg-9 col-xl-10 offset-xl-2 offset-lg-3">
+        <div class="tab-content animated fadeIn" id="certificates-content">
+
+          <h2 class="display-3 no-margin text-capitalize flex-fluid">Identity Certificates</h2>
+          <h5 class="base-margin-bottom subheading">Used for EAP-TLS authentications</h5>
+
+          <div class="panel half-margin-top actions no-padding-left no-padding-right">
+            <div class="flex-center-vertical">
+                <div class="btn-group btn-group--square">
+                  <div class="dropdown add-dropdown btn-add-dropdown">
+                    <button class="btn btn--light btn--dropdown" title="Add certificate">
+                      <span class="icon-add-outline half-margin-right"></span>
+                      <span class="btn--label">Add certificate</span>
+                    </button>
+                    <div class="dropdown__menu">
+                      <a class="panel btn-add-identity" data-format="file">Add certificate &amp; private key as files</a>
+                      <a class="panel btn-add-identity" data-format="text">Add certificate &amp; private key as PEM text</a>
+                      <a class="panel btn-request-identity">Request from SCEP server</a>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="divider hide-empty" [% data_hide %]></div>
+                <div class="btn-group btn-group--square hide-empty" [% data_hide %]>
+
+                  <button class="btn btn--light btn-rename-identity scope-selected" disabled>
+                    <span class="icon-edit half-margin-right" aria-hidden="true" title="Rename"></span>
+                    <span>Rename</span>
+                  </button>
+                  <button class="btn btn--light btn-details-identity scope-selected" disabled>
+                    <span class="icon-eye half-margin-right" aria-hidden="true" title="Details"></span>
+                    <span>Details</span>
+                  </button>
+                  <button class="btn btn--light btn-export-identity scope-selected" disabled>
+                    <span class="icon-export half-margin-right" aria-hidden="true" title="Export"></span>
+                    <span>Export</span>
+                  </button>
+
+                </div>
+                <div class="divider hide-empty" [% data_hide %]></div>
+                <div class="btn-group btn-group--square hide-empty" [% data_hide %]>
+
+                  <div class="dropdown remove-dropdown">
+                    <button class="btn btn--light btn--dropdown btn-remove-dropdown" title="Remove">
+                      <span class="icon-trash half-margin-right"></span>
+                      <span class="btn--label">Remove</span>
+                    </button>
+                    <div class="dropdown__menu">
+                      <a class="panel btn-remove btn-remove-identity scope-selected" disabled>Remove selected certificates</a>
+                      <a class="panel btn-remove" data-remove="all" data-remove-display="all">Remove all certificates</a>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+          </div>
+
+          
+          <div class="responsive-table base-margin-top dbl-margin-bottom">
+            <div class="panel table-placeholder" [% no_data_hide %]>
+              <ul class="list">
+                <li>Did not find any identity certificate.</li>
+              </ul>
+            </div>
+            <table
+              id="identity-table" 
+              class="table table--compressed table--bordered table--highlight table--nostripes table--sortable table--fixed"
+              [% data_hide %]
+              [% IF paging %]
+                [% paging.page = (paging.offset / paging.limit)+1 %]
+                data-pagination="true"
+                data-page="[% paging.page %]"
+                data-pages="[% paging.pages %]"
+                data-sortcolumn="[% paging.column %]"
+                data-sortorder="[% paging.order %]"
+                data-perpage="[% paging.limit %]"
+              [% END %]>
+              <thead>
+                <tr>
+                  <th class="checkbox-only">
+                    <label class="checkbox">
+                      <input type="checkbox" class="checkbox-all" id="identity-checkbox-all">
+                      <span class="checkbox__input"></span>
+                    </label>
+                  </th>
+                  <th data-column="friendly_name" class="sortable">Friendly Name</th>
+                  <th data-column="subject" class="sortable">Subject</th>
+                  <th data-column="issuer" class="sortable">Issued by</th>
+                  <th data-column="not_before" data-filter-as="valid_from" class="sortable">Valid from</th>
+                  <th data-column="not_after" data-filter-as="valid_to" class="sortable">Valid till</th>
+                </tr>
+              </thead>
+              <tbody>
+                [% IF has_data %]
+                  [% FOREACH cert IN identity %]
+                  <tr data-id="[% cert.id %]">
+                    <td class="checkbox-only">
+                      <label class="checkbox">
+                        <input type="checkbox" class="checkbox-input identity-checkbox">
+                        <span class="checkbox__input"></span>
+                      </label>
+                    </td>
+                    <td>[% cert.friendly_name %]</td>
+                    [% IF cert.defined('broken') %]
+                    <td colspan="4" style="word-break: break-word; white-space: normal;">
+                      <span class="icon-warning text-warning qtr-margin-right"></span>Couldn't open file [% cert.broken.file %]
+                    </td>
+                    [% ELSE %]
+                    <td>[% cert.subject %]</td>
+                    <td>[% cert.issuer %]</td>
+                    <td>[% cert.not_before %]</td>
+                    <td>
+                      [% IF cert.is_expired %]<span class="icon-warning text-warning qtr-margin-right" title="Certificate is expired"></span>[% END %][% cert.not_after %]
+                    </td>
+                    [% END %]
+                  </tr>
+                  [% END %]
+                [% END %]
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+[% global.javascripts = BLOCK %]
+[% USE date %]
+<script src="/js/FileSaver.js"></script>
+<script src="/js/certificate-builder.js"></script>
+<script src="/js/table-checkbox.js"></script>
+<script src="/js/certificates.js?[% date.now %]"></script>
+<script src="/js/cert-identity.js?[% date.now %]"></script>
+<link rel="stylesheet" href="/css/tables.css">
+[% END %]

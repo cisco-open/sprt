@@ -1,0 +1,107 @@
+[% has_data = (templates && templates.size);
+   no_data_hide = '';
+   data_hide = '';
+   IF has_data;
+    SET no_data_hide = 'style="display: none;"';
+   ELSE;
+    SET data_hide = 'style="display: none;"';
+   END;
+%]
+
+  <div class="section">
+    <div class="row">
+      <div class="col-md-4 col-lg-3 col-xl-2 fixed-left-lg-up">
+        [% active = 'templates' %]
+        [% INCLUDE 'certificates-tabs.tt' %]
+      </div>
+      <div class="col-md-8 col-lg-9 col-xl-10 offset-xl-2 offset-lg-3">
+        <div class="tab-content animated fadeIn" id="certificates-content">
+
+          <h2 class="display-3 no-margin text-capitalize flex-fluid">Certificate Templates</h2>
+          <h5 class="base-margin-bottom subheading">Used to generate CSRs</h5>
+
+          <div class="panel half-margin-top actions no-padding-left no-padding-right" id="templates-actions">
+            <div class="flex-center-vertical">
+                <div class="btn-group btn-group--square">
+                  <button class="btn btn--light btn-add-template">
+                    <span class="icon-add-outline half-margin-right" aria-hidden="true" title="Add template"></span>
+                    <span>Add template</span>
+                  </button>
+
+                </div>
+                <div class="divider hide-empty"></div>
+                <div class="btn-group btn-group--square hide-empty">
+
+                  <button class="btn btn--light btn-edit-template scope-selected" disabled [% data_hide %]>
+                    <span class="icon-edit half-margin-right" aria-hidden="true" title="Edit"></span>
+                    <span>Edit</span>
+                  </button>
+
+                </div>
+                <div class="divider hide-empty"></div>
+                <div class="btn-group btn-group--square hide-empty">
+
+                  <div class="dropdown remove-dropdown" [% data_hide %]>
+                    <button class="btn btn--light btn--dropdown btn-remove-dropdown" title="Remove">
+                      <span class="icon-trash half-margin-right"></span>
+                      <span class="btn--label">Remove</span>
+                    </button>
+                    <div class="dropdown__menu">
+                      <a class="panel btn-remove btn-remove-template scope-selected" disabled>Remove selected templates</a>
+                      <a class="panel btn-remove" data-remove="all" data-remove-display="all">Remove all templates</a>
+                    </div>
+                  </div>
+
+                </div>
+            </div>
+          </div>
+
+          <div class="responsive-table base-margin-top dbl-margin-bottom">
+            <div class="panel table-placeholder" [% no_data_hide %]>
+              <ul class="list">
+                <li>Did not find any template.</li>
+              </ul>
+            </div>
+            <table id="templates-table" class="table table--compressed table--bordered table--highlight table--nostripes table--wrap" [% data_hide %]>
+              <thead>
+                <tr>
+                  <th class="checkbox-only">
+                    <label class="checkbox">
+                      <input type="checkbox" class="checkbox-all" id="template-checkbox-all">
+                      <span class="checkbox__input"></span>
+                    </label>
+                  </th>
+                  <th data-column="friendly_name">Friendly Name</th>
+                  <th data-column="subject">Subject</th>
+                </tr>
+              </thead>
+              <tbody>
+                [% IF has_data %]
+                  [% FOREACH templ IN templates %]
+                  <tr data-id="[% templ.id %]">
+                    <td class="checkbox-only">
+                      <label class="checkbox">
+                        <input type="checkbox" class="checkbox-input template-checkbox">
+                        <span class="checkbox__input"></span>
+                      </label>
+                    </td>
+                    <td>[% templ.friendly_name %]</td>
+                    <td>[% templ.subject %]</td>
+                  </tr>
+                  [% END %]
+                [% END %]
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+[% global.javascripts = BLOCK %]
+<script src="/js/FileSaver.js"></script>
+<script src="/js/certificate-builder.js"></script>
+<script src="/js/table-checkbox.js"></script>
+<script src="/js/cert-template.js"></script>
+[% END %]

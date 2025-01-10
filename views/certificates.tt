@@ -1,0 +1,22 @@
+<div class="section">
+    <div class="row">
+      <div class="col-md-4 col-lg-3 col-xl-2">
+        [% active = 'none' %]
+        [% INCLUDE 'certificates-tabs.tt' %]
+      </div>
+      <div class="col-md-8 col-lg-9 col-xl-10">
+        <div class="tab-content" id="certificates-content"></div>
+      </div>
+    </div>
+  </div>
+
+[% global.modals = BLOCK %]
+ 
+[% END %]
+
+[% global.javascripts = BLOCK %]
+[% USE date %]
+<script type="text/javascript" src="/js/jquery.tablesorter.combined.js"></script>
+<script src="/js/table-checkbox.js?[% version %]"></script>
+<script src="/js/certificates.js?[% version %]"></script>
+[% END %]

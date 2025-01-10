@@ -1,0 +1,25 @@
+.dropzone {
+	border: 1px dashed #dfdfdf !important;
+	cursor: pointer;
+	text-align: center;
+}
+
+.dropzone:hover, 
+.dropzone.dz-drag-hover {
+	border-color: #049fd9 !important;
+}
+
+.dropzone:hover .file-drop__icon,
+.dropzone.dz-drag-hover .file-drop__icon{
+    color: #049fd9;
+}
+
+.dropzone .dz-message .file-drop__icon {
+	font-size: 2rem;
+}
+
+.dropzone .dz-previews .file-drop__filecnt {
+    text-align: left;
+    color: #9e9ea2;
+    margin-top: 1.3125rem;
+}

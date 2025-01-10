@@ -1,0 +1,28 @@
+<div class="section">
+  <div class="row">
+    <div class="col-md-4 col-lg-3 col-xl-2 fixed-left-lg-up">
+      [% active = 'scep' %]
+      [% INCLUDE 'certificates-tabs.tt' %]
+    </div>
+    <div class="col-md-8 col-lg-9 col-xl-10 offset-xl-2 offset-lg-3">
+      <div id="react-app" class="sticky">
+          <div class="flex-center" style="flex: 1">
+            <div>
+                <div class="loading-spinner loading-spinner--indigo flex-center flex">
+                    <div class="wrapper">
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+                <div class="base-margin-top text-center">Loading UI...</div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+[% global.javascripts = BLOCK %]
+  [% INCLUDE inc/reactjs.tt %]
+
+  <script src="/js/react-uis/dist/scep.js?[% version %]"></script>
+[% END %]

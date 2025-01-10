@@ -1,0 +1,184 @@
+<div class="section">
+  <div class="row">
+    <div class="col-md-4 col-lg-3 col-xl-2 fixed-left-lg-up">
+      <div class="base-margin-left hidden-sm-down half-margin-bottom">
+        <div class="subheader no-margin-bottom">SMS Gateway</div>
+        <a class="flex disabled status text-success text-small"> <div class="text-left">All saved</div> <span class="icon half-margin-left icon-check-outline" aria-hidden="true"></span> </a>
+      </div>
+      <ul class="tabs tabs--vertical switchable" data-content="general-ui-tabs">
+        <li class="tab active" data-order="1"><a href="/guest/sms/tab/sms-gateway/" data-target="sms-gateway">Configuration</a></li>
+        <li class="tab" data-order="1"><a href="/guest/sms/tab/results/" data-target="results">Results</a></li>
+      </ul>
+    </div>
+    <div class="col-md-8 col-lg-9 col-xl-10 offset-xl-2 offset-lg-3" id="general-ui-tabs">
+      <div class="tab-content">
+        <div class="tab-pane animated fadeIn active" id="sms-gateway">
+          <div class="tab-header" >
+            <h2 class="display-3 no-margin text-capitalize flex-fluid">SMS gateway configuration</h2>
+          </div>
+          <div class="half-margin-top dbl-margin-bottom tab-body">
+            <div class="dropdown base-margin-bottom" id="url-examples">
+              <a href="javascript:;" class="btn--dropdown not-submit" type="button">
+                <span class="dropdown-title">Load example</span>
+	            </a>
+              <div class="dropdown__menu" aria-labelledby="dLabel">
+              </div>
+            </div>
+
+            <form action="/guest/sms/" method="POST" name="smsConfig">
+              <div class="row">
+                <div class="col-2">
+                  <div class="form-group">
+                    <div class="form-group__text select">
+                      <select id="method-select" name="method">
+                        <option value="get"[% page_attributes.defined('method') && page_attributes.method == 'get' ? ' selected' : '' %]>GET</option>
+                        <option value="post"[% page_attributes.defined('method') && page_attributes.method == 'post' ? ' selected' : '' %]>POST</option>
+                      </select>
+                      <label for="method-select">Method</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-10">
+                  <div class="form-group flex-fill half-margin-right">
+                    <div class="form-group__text">
+                      <div class="flex input-with-pre">
+                        <div 
+                          class="input--pre" 
+                          id="host-info" 
+                          data-hostname="[% hostname %]"
+                          data-path="/sms/[% username %]/">http(s)://[% hostname %]/sms/[% username %]/</div>
+                        <input id="sms-gateway-url" class="flex-fluid" type="text" name="url_postfix" value="[% page_attributes.defined('url_postfix') ? page_attributes.url_postfix : 'sms.php' %]">
+                      </div>
+                      <label for="sms-gateway-url">SMS gateway URL</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row half-margin-top">
+                <div class="col-6">
+                  <div class="form-group">
+                    <div class="form-group__text">
+                      <textarea 
+                        id="body-template" 
+                        class="textarea" 
+                        rows="5" 
+                        name="body_template"
+                        [% page_attributes.defined('method') && page_attributes.method == 'post' ? '' : 'disabled' %]>[% FILTER trim %]
+                          [% IF page_attributes.defined('body_template') %]
+                            [% FILTER html %][% page_attributes.body_template %][% END %]
+                          [% ELSE %][% FILTER replace('\n', '<newline>') %]{
+                              "phone": "$phone$",
+                              "message": "$message$"
+                            }[% END %][% END %]
+                        [% END %]</textarea>
+                      <label 
+                        for="body-template" 
+                        [% page_attributes.defined('method') && page_attributes.method == 'post' ? '' : 'disabled' %]>Body template (of POST)</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-group">
+                    <div class="form-group__text">
+                      <textarea id="message-template" class="textarea" rows="5" name="message_template">[% FILTER trim %]
+                      [% IF page_attributes.defined('message_template') %][% FILTER html %]
+                        [% page_attributes.message_template %] 
+                      [% END %][% ELSE %]Your account details: Username: $username$ Password: $password$[% END %]
+                      [% END %]</textarea>
+                      <label for="message-template">$message$ template</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group half-margin-top animated fadeIn fast" 
+                [% page_attributes.defined('method') && page_attributes.method == 'post' ? '' : 'style="display: none;"' %]>
+                <div class="form-group__text">
+                  <input id="content-type" name="content_type" type="text" value="[% page_attributes.defined('content_type') ? page_attributes.content_type : 'application/json' %]">
+                  <label for="content-type">Content type</label>
+                </div>
+              </div>
+
+              <div class="form-group half-margin-top">
+                <label class="switch">
+                  <input type="checkbox" id="basic-auth-switch" name="basic_auth" [% page_attributes.defined('basic_auth') && page_attributes.basic_auth ? 'checked' : '' %]>
+                  <span class="switch__input"></span>
+                  <span class="switch__label">Require HTTP authentication</span>
+                </label>
+              </div>
+
+              <div 
+                class="row half-margin-top animated fadeIn faster"
+                id="http-basic-auth"
+                [% page_attributes.defined('basic_auth') && page_attributes.basic_auth ? '' : 'style="display: none;"' %]>
+                <div class="col-6">
+                  <div class="form-group">
+                    <div class="form-group__text">
+                      <input id="basic-auth-user" name="username" type="text" value="[% page_attributes.defined('username') ? page_attributes.username : '' %]">
+                      <label for="basic-auth-user">Username</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-group">
+                    <div class="form-group__text">
+                      <input id="basic-auth-password" name="password" type="text" value="[% page_attributes.defined('password') ? page_attributes.password : '' %]">
+                      <label for="basic-auth-password">Password</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="alert dbl-margin-top">
+                <div class="alert__icon icon-info-outline"></div>
+                <div class="alert__message">
+                  <div>These variables should be specified either in URL, or body or $message$ template so SPRT will be able to detect credentials:</div>
+                  <div><strong>$username$</strong> - for the guest username</div>
+                  <div><strong>$password$</strong> - for the guest password</div>
+                  <div><strong>$phone$</strong> - for the mobile number</div>
+                  <div><strong>$message$</strong> - to specify where $message$ should be</div>
+                  <div class="divider divider--compressed"></div>
+                  <div>Variables will be replaced with these Regular Expressions:
+                    <ul class="list--unstyled">
+                      <li><span class="text-monospace">(?&lt;username&gt;[^\s]+)</span></li>
+                      <li><span class="text-monospace">(?&lt;password&gt;[^\s]+)</span></li>
+                      <li><span class="text-monospace">(?&lt;phone&gt;[^\s]+)</span> </li>
+                      <li><span class="text-monospace">(?&lt;message&gt;.+)</span></li>
+                    </ul>
+                  </div>
+                  <div>Named capturing groups are used. Names of the groups must be as above.</div>
+                  <div>If you are sure about Regular Expressions you may use them instead of variables.</div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div> 
+        <div class="tab-pane animated fadeIn" id="results">
+          <div class="tab-header">
+            <h2 class="display-3 no-margin text-capitalize flex-fluid">Result</h2>
+            <h5 class="base-margin-bottom subheading">What should be configured on ISE</h5>
+          </div>
+          <div class="tab-body">
+            <ul id="results-tab" class="tabs tabs--bordered base-margin-bottom">
+              <li class="tab active"><a tabindex="0" data-target="http-result"><div class="tab__heading">For HTTP</div></a></li>
+              <li class="tab"><a tabindex="0" data-target="https-result"><div class="tab__heading">For HTTPS</div></a></li>
+            </ul>
+            <div class="tab-content">
+              <div id="http-result" class="tab-pane active animated fadeIn"></div>
+              <div id="https-result" class="tab-pane animated fadeIn"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+[% global.modals = BLOCK %][% END %]
+[% global.javascripts = BLOCK %]
+[% USE date %]
+<script src="/js/var_builder.js?[% version %]"></script>
+<script src="/js/data-saver.js?[% version %]"></script>
+<script src="/js/sms.js?[% version %]"></script>
+[% END %]
