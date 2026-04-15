@@ -51,13 +51,13 @@ generator:
   patterns:
     session_id: uc(hex(rand(4096..65535)))/uc($MAC$)/uc(hex(rand(4096..65535)))
   watcher_lifetime: 15
-hostname: 172.19.0.1
+hostname: sprt
 layout: main
 log: debug
 log4perl: |-
   log4perl.logger.main = DEBUG, DBI
   log4perl.appender.DBI = Log::Log4perl::Appender::DBI
-  log4perl.appender.DBI.datasource=DBI:Pg:dbname=sprt;host=172.19.0.1;port=5432
+  log4perl.appender.DBI.datasource=DBI:Pg:dbname=sprt;host=db.postgres.sprt;port=5432
   log4perl.appender.DBI.username=sprt
   log4perl.appender.DBI.password=test123
   log4perl.appender.DBI.sql=INSERT INTO "logs" ("id", "timestamp", "loglevel", "message", "owner", "chunk") VALUES (uuid_generate_v1(),?,?,?,?,?)
@@ -69,9 +69,9 @@ log4perl: |-
   log4perl.appender.DBI.attrs.AutoInactiveDestroy=1
 nad:
   allowed:
-    - 172.19.0.4
+    - pxgrider.sprt
   exclude: '^\s*(127\.0\.0\.\d+|FE80::.*|::1)\s*$'
-  ip: 172.19.0.4
+  ip: pxgrider.sprt
 one_user_mode: 1
 one_user_opts:
   givenName: User
@@ -85,7 +85,7 @@ plugins:
       AutoCommit: 1
       RaiseError: 1
     driver: Pg
-    host: 172.19.0.1
+    host: db.postgres.sprt
     log_queries: 1
     password: test123
     port: 5432
@@ -102,7 +102,7 @@ radius:
   retransmits: 0
   timeout: 5
 redis:
-  server: 172.19.0.1:6379
+  server: redis.sprt:6379
 scep:
   listen: /var/run/radgen-scep-socket
   type: socket
